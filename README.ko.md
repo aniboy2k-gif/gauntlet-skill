@@ -12,6 +12,10 @@
 
 > **스킬명 "gauntlet"의 유래** — "run the gauntlet(수난의 행렬을 통과하다)"에서 왔습니다. 비판자들이 줄지어 서 있는 길을 통과해야 하는 시련. gauntlet은 당신의 설계에 바로 그 시련을 겪게 합니다.
 
+**Solo AI flatters. gauntlet challenges.**
+
+![gauntlet demo](assets/demo.gif)
+
 **AI가 당신의 설계에 동의하는 대신 공격하게 만들어라.**
 
 AI에게 코드 검토를 맡기면, 문제를 찾기보다 동의할 이유를 찾습니다. gauntlet은 이 패턴을 뒤집습니다:

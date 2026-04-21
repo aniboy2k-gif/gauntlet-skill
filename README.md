@@ -5,6 +5,10 @@
 
 > **Named after "to run the gauntlet"** — the ordeal of passing through a line of critics, one after another. That's exactly what gauntlet makes your design do.
 
+**Solo AI flatters. gauntlet challenges.**
+
+![gauntlet demo](assets/demo.gif)
+
 **Make your AI attack your design, not agree with it.**
 
 When you ask an AI to review your code, it finds reasons to approve — not problems to fix. gauntlet flips this:
