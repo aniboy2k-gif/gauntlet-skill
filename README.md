@@ -76,29 +76,53 @@ Built-in advantages:
 
 ## Installation
 
-```bash
-# 1. Copy skill files to Claude Code skills directory
-cp -r gauntlet/ ~/.claude/skills/gauntlet/
-
-# 2. Grant execute permission to provider scripts (required for Stage 2)
-chmod +x ~/.claude/skills/gauntlet/providers/*.sh
-
-# 3. (Recommended) Symlink data directory to workspace
-#    This keeps session data outside the skill directory — easier to back up and version-control separately.
-#    Replace $WORKSPACE with your actual workspace path.
-ln -s "$WORKSPACE/gauntlet-data" ~/.gauntlet
-```
-
-> **Note**: If `~/.gauntlet/` already exists as a real directory, symlink creation will fail silently.
-> Run `ls -la ~/.gauntlet` to check. If it's a directory, move it first:
-> `mv ~/.gauntlet "$WORKSPACE/gauntlet-data" && ln -s "$WORKSPACE/gauntlet-data" ~/.gauntlet`
-
 ### Pre-flight check
 
 ```bash
-python3 --version   # Required for all stages. Fails at Step 1 if missing.
-curl --version      # Required for Stage 2 only.
+command -v python3 >/dev/null 2>&1 || { echo "python3 is required. Install: brew install python3"; exit 1; }
+# curl is required for Stage 2 only:
+# command -v curl >/dev/null 2>&1 || { echo "curl is required for Stage 2"; exit 1; }
 ```
+
+### Install
+
+```bash
+# 1. Clone the repository (skip if already cloned)
+[ ! -d gauntlet-skill ] && git clone https://github.com/aniboy2k-gif/gauntlet-skill.git
+cd gauntlet-skill
+
+# 2. Copy skill files
+#    Note: This overwrites an existing installation. Back up custom changes first.
+cp -r gauntlet/ ~/.claude/skills/gauntlet/
+
+# 3. Grant execute permission to provider scripts (required for Stage 2)
+find ~/.claude/skills/gauntlet/providers -maxdepth 1 -name '*.sh' -exec chmod +x {} +
+
+# 4. (Recommended) Symlink data directory to workspace
+#    Default: ~/workspace/gauntlet-data. Override by setting GAUNTLET_DATA before running.
+GAUNTLET_DATA="${GAUNTLET_DATA:-$HOME/workspace/gauntlet-data}"
+mkdir -p "$GAUNTLET_DATA"
+
+if [ -L "$HOME/.gauntlet" ]; then
+  echo "~/.gauntlet symlink already exists — skipping."
+elif [ -d "$HOME/.gauntlet" ]; then
+  echo "~/.gauntlet is a real directory. To replace with a symlink:"
+  echo "  mv ~/.gauntlet \"$GAUNTLET_DATA\" && ln -s \"$GAUNTLET_DATA\" ~/.gauntlet"
+  echo "  If the symlink fails, restore with: mv \"$GAUNTLET_DATA\" ~/.gauntlet"
+elif [ -e "$HOME/.gauntlet" ]; then
+  echo "~/.gauntlet exists (not a directory or symlink). Check manually."
+else
+  ln -s "$GAUNTLET_DATA" "$HOME/.gauntlet" && echo "Symlink created: ~/.gauntlet → $GAUNTLET_DATA"
+fi
+
+# 5. Verify
+ls ~/.claude/skills/gauntlet/SKILL.md \
+  && find ~/.claude/skills/gauntlet/providers -name '*.sh' -perm +0111 | grep -q . \
+  && echo "✅ Installation complete" \
+  || echo "⚠ Verification failed — check the steps above."
+```
+
+> **Note**: `ln -s` is not silent on failure — if `~/.gauntlet` already exists, it prints an error to stderr (e.g., `ln: ~/.gauntlet: File exists`). The script above handles all cases explicitly so this should not occur during a normal install.
 
 ---
 

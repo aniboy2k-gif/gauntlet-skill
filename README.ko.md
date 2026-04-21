@@ -83,29 +83,53 @@ Claude Code를 쓰면서 AI 검토가 지나치게 순응적이라고 느낀 개
 
 ## 설치
 
-```bash
-# 1. 스킬 파일을 Claude Code 스킬 디렉터리에 복사
-cp -r gauntlet/ ~/.claude/skills/gauntlet/
-
-# 2. provider 스크립트 실행 권한 부여 (Stage 2 필수)
-chmod +x ~/.claude/skills/gauntlet/providers/*.sh
-
-# 3. (권장) 데이터 디렉터리를 워크스페이스로 심링크
-#    스킬 디렉터리 외부에 세션 데이터를 보관 — 백업·버전 관리가 용이합니다.
-#    $WORKSPACE를 실제 워크스페이스 경로로 교체하세요.
-ln -s "$WORKSPACE/gauntlet-data" ~/.gauntlet
-```
-
-> **주의**: `~/.gauntlet/`이 이미 실제 디렉터리로 존재하면 심링크 생성이 조용히 실패합니다.
-> `ls -la ~/.gauntlet`으로 확인 후, 실제 디렉터리라면 먼저 이동하세요:
-> `mv ~/.gauntlet "$WORKSPACE/gauntlet-data" && ln -s "$WORKSPACE/gauntlet-data" ~/.gauntlet`
-
 ### 사전 확인
 
 ```bash
-python3 --version   # 전 단계 필수. 없으면 Step 1에서 즉시 실패합니다.
-curl --version      # Stage 2만 필요.
+command -v python3 >/dev/null 2>&1 || { echo "python3가 필요합니다. 설치: brew install python3"; exit 1; }
+# curl은 Stage 2에서만 필요합니다:
+# command -v curl >/dev/null 2>&1 || { echo "curl이 필요합니다 (Stage 2)"; exit 1; }
 ```
+
+### 설치
+
+```bash
+# 1. 저장소 클론 (이미 클론했다면 건너뜁니다)
+[ ! -d gauntlet-skill ] && git clone https://github.com/aniboy2k-gif/gauntlet-skill.git
+cd gauntlet-skill
+
+# 2. 스킬 파일을 Claude Code 스킬 디렉터리에 복사
+#    주의: 기존 설치가 있다면 덮어씁니다. 커스텀 변경사항은 미리 백업하세요.
+cp -r gauntlet/ ~/.claude/skills/gauntlet/
+
+# 3. provider 스크립트 실행 권한 부여 (Stage 2 필수)
+find ~/.claude/skills/gauntlet/providers -maxdepth 1 -name '*.sh' -exec chmod +x {} +
+
+# 4. (권장) 데이터 디렉터리를 워크스페이스로 심링크
+#    기본값: ~/workspace/gauntlet-data. 실행 전 GAUNTLET_DATA 환경변수로 변경 가능.
+GAUNTLET_DATA="${GAUNTLET_DATA:-$HOME/workspace/gauntlet-data}"
+mkdir -p "$GAUNTLET_DATA"
+
+if [ -L "$HOME/.gauntlet" ]; then
+  echo "~/.gauntlet 심링크가 이미 존재합니다 — 건너뜁니다."
+elif [ -d "$HOME/.gauntlet" ]; then
+  echo "~/.gauntlet이 실제 디렉터리입니다. 심링크로 교체하려면:"
+  echo "  mv ~/.gauntlet \"$GAUNTLET_DATA\" && ln -s \"$GAUNTLET_DATA\" ~/.gauntlet"
+  echo "  심링크 생성 실패 시 복원: mv \"$GAUNTLET_DATA\" ~/.gauntlet"
+elif [ -e "$HOME/.gauntlet" ]; then
+  echo "~/.gauntlet이 존재합니다 (디렉터리도 심링크도 아닙니다). 수동으로 확인하세요."
+else
+  ln -s "$GAUNTLET_DATA" "$HOME/.gauntlet" && echo "심링크 생성 완료: ~/.gauntlet → $GAUNTLET_DATA"
+fi
+
+# 5. 설치 확인
+ls ~/.claude/skills/gauntlet/SKILL.md \
+  && find ~/.claude/skills/gauntlet/providers -name '*.sh' -perm +0111 | grep -q . \
+  && echo "✅ 설치 완료" \
+  || echo "⚠ 설치 확인 실패 — 위 단계를 다시 확인하세요."
+```
+
+> **주의**: `ln -s`는 실패 시 조용히 넘어가지 않습니다 — `~/.gauntlet`이 이미 존재하면 stderr에 에러를 출력합니다 (예: `ln: ~/.gauntlet: File exists`). 위 스크립트는 모든 상태를 명시적으로 처리하므로 정상적인 설치 과정에서는 이 에러가 발생하지 않습니다.
 
 ---
 
