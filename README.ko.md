@@ -93,13 +93,18 @@ command -v python3 >/dev/null 2>&1 || { echo "python3가 필요합니다. 설치
 
 ### 설치
 
+> ⚠ **기존 설치를 덮어씁니다.** 실행 전 `~/.claude/skills/gauntlet/`의 커스텀 변경사항을 백업하세요.
+
 ```bash
+# 이 블록 전체를 한 번에 실행하세요
 # 1. 저장소 클론 (이미 클론했다면 건너뜁니다)
 [ ! -d gauntlet-skill ] && git clone https://github.com/aniboy2k-gif/gauntlet-skill.git
 cd gauntlet-skill
+set -e
 
 # 2. 스킬 파일을 Claude Code 스킬 디렉터리에 복사
 #    주의: 기존 설치가 있다면 덮어씁니다. 커스텀 변경사항은 미리 백업하세요.
+mkdir -p ~/.claude/skills/
 cp -r gauntlet/ ~/.claude/skills/gauntlet/
 
 # 3. provider 스크립트 실행 권한 부여 (Stage 2 필수)
@@ -122,9 +127,10 @@ else
   ln -s "$GAUNTLET_DATA" "$HOME/.gauntlet" && echo "심링크 생성 완료: ~/.gauntlet → $GAUNTLET_DATA"
 fi
 
+set +e
 # 5. 설치 확인
 ls ~/.claude/skills/gauntlet/SKILL.md \
-  && find ~/.claude/skills/gauntlet/providers -name '*.sh' -perm +0111 | grep -q . \
+  && find ~/.claude/skills/gauntlet/providers -name '*.sh' -perm -u+x | grep -q . \
   && echo "✅ 설치 완료" \
   || echo "⚠ 설치 확인 실패 — 위 단계를 다시 확인하세요."
 ```

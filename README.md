@@ -86,13 +86,18 @@ command -v python3 >/dev/null 2>&1 || { echo "python3 is required. Install: brew
 
 ### Install
 
+> ⚠ **This overwrites an existing installation.** Back up custom changes in `~/.claude/skills/gauntlet/` before running.
+
 ```bash
+# Run this entire block at once
 # 1. Clone the repository (skip if already cloned)
 [ ! -d gauntlet-skill ] && git clone https://github.com/aniboy2k-gif/gauntlet-skill.git
 cd gauntlet-skill
+set -e
 
 # 2. Copy skill files
 #    Note: This overwrites an existing installation. Back up custom changes first.
+mkdir -p ~/.claude/skills/
 cp -r gauntlet/ ~/.claude/skills/gauntlet/
 
 # 3. Grant execute permission to provider scripts (required for Stage 2)
@@ -115,9 +120,10 @@ else
   ln -s "$GAUNTLET_DATA" "$HOME/.gauntlet" && echo "Symlink created: ~/.gauntlet → $GAUNTLET_DATA"
 fi
 
+set +e
 # 5. Verify
 ls ~/.claude/skills/gauntlet/SKILL.md \
-  && find ~/.claude/skills/gauntlet/providers -name '*.sh' -perm +0111 | grep -q . \
+  && find ~/.claude/skills/gauntlet/providers -name '*.sh' -perm -u+x | grep -q . \
   && echo "✅ Installation complete" \
   || echo "⚠ Verification failed — check the steps above."
 ```
