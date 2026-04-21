@@ -47,7 +47,7 @@ Claude Code users who have felt AI review is too agreeable. Specifically:
 | PR review bots | Improved in 2025 (Copilot Code Review GA, CodeRabbit support multi-round comments), but typically single-vendor, no sequential cross-critique between models |
 | **gauntlet** | Each AI inherits the previous critique. Multiple perspectives reduce the chance of repeating the same oversight. |
 
-**2026 context**: AI coding tools make building faster — but faster-wrong is worse than slow-right. As AI sycophancy and AI-generated code proliferate, adversarial review infrastructure becomes the missing layer. gauntlet is that layer.
+**2026 context**: AI coding tools make building faster — but faster-wrong is worse than slow-right. As AI sycophancy and AI-generated code proliferate, adversarial review infrastructure has become the missing layer. gauntlet is that layer.
 
 Built-in advantages:
 - 🔍 **Multiple perspectives** — sequential critique surfaces issues that a single-pass review may miss
@@ -164,8 +164,9 @@ Recommended next steps by severity:
 
 * A Human-in-the-Loop (HIL) gate fires at the final step.
   Results remain in Draft state until you explicitly accept them.
+  Note: gauntlet supports both English and Korean confirmation phrases.
   To accept: type "확정해주세요", "이대로 Finalized 처리", "confirm", or "finalize"
-  Note: "좋네요", "네", "looks good", or "ok" alone are not accepted as confirmation.
+  Not accepted: "좋네요", "네", "looks good", or "ok" alone are not accepted as confirmation.
 ```
 
 #### Example output (Stage 1, Tier 2)
@@ -229,7 +230,7 @@ Originally from the Catholic canonization process — before a decision is made,
 |---|---|---|
 | Setup | Not required | `/gauntlet --setup` |
 | Method | Claude subagents, multiple lenses in sequence | Configurable 1–3 provider chain (Tier 1: P1→P2→P3, Tier 2: P1→P2) |
-| Independence | Same model, different perspectives (shared bias possible) | Different vendor models — higher independence. Note: orchestrator layer (Claude) still frames each prompt; treat as reference, not verdict. |
+| Independence | Same model, different perspectives (shared bias possible) | Different vendor models — higher independence. Note: orchestrator layer (Claude) still frames each prompt. |
 | Cost | Free | Based on API usage |
 | Output label | Advisory Output | Verified Output |
 
@@ -256,7 +257,7 @@ You can force a tier with `--tier 1`. Tier 3 is only for changes with effectivel
 
 ## Roles (--role)
 
-Injects a criticism lens matched to the review topic. If omitted, auto-selected by analyzing TOPIC.
+Injects a criticism lens tailored to the review topic. If omitted, auto-selected by analyzing TOPIC.
 
 A lens is a specialized critique perspective injected at each review step.
 
@@ -308,7 +309,7 @@ gauntlet serves a different purpose.
 | | codex-plugin-cc | gauntlet |
 |---|---|---|
 | Structure | Claude → ChatGPT one-way call | Multiple AIs sequential cross-critique |
-| Purpose | Leverage ChatGPT's capabilities | Structured adversarial review — same orchestrator (Claude) frames all prompts; treat results as reference, not verdict |
+| Purpose | Leverage ChatGPT's capabilities | Structured adversarial review — same orchestrator (Claude) frames all prompts |
 | AI role | ChatGPT as Claude's tool | Each AI picks up the previous AI's critique, reducing the chance of repeating the same judgment error |
 | Setup | 1 OpenAI API key required | Stage 1 requires no setup |
 
@@ -388,7 +389,7 @@ The two skills are not substitutes for each other. Including OpenAI in gauntlet 
 | ref-common.md | Korean + English Overview | Full English | v2 (medium-term) |
 | ref-provider-guide.md | Korean + English Overview | Full English | v2 (medium-term) |
 
-> **v1.1 milestone (H6 partial)**: Each ref file now has an English Overview comment block at the top. Full English translation of procedural body text remains v2.
+> **v1.1 milestone**: Each ref file now has an English Overview comment block at the top. Full English translation of procedural body text remains v2.
 
 ---
 
