@@ -1,0 +1,10 @@
+{
+  "schema_version": "1.0",
+  "name": "openai",
+  "display_name": "OpenAI GPT",
+  "key_env": "GAUNTLET_OPENAI_KEY",
+  "key_service": "gauntlet-openai",
+  "default_model": "gpt-4o",
+  "lens_hint": "User comprehensibility, UX scenarios, scalability and maintainability perspective",
+  "timeout_sec": 60
+}

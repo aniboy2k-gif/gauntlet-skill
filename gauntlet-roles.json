@@ -1,0 +1,232 @@
+{
+  "__meta__": {
+    "schema_version": "1.0",
+    "next_breaking_change": "v2 locale map — full locale map migration for all runtime fields",
+    "fingerprint": "sha256:ad8016baf7742826fa6702494544cd8e3e9e68d47509f659126a7263eac73e3b",
+    "change_level": "minor",
+    "changelog": "i18n: description/use_when/avoid_when converted to locale map {en/ko}; schema_version 1.1→1.0 for v1 baseline",
+    "last_sync_check": "2026-04-20",
+    "allowed_divergence": ["description", "changelog", "last_sync_check"],
+    "sync_decision_log": "2026-04-20: description/use_when/avoid_when fields converted to {en,ko} locale map for global distribution"
+  },
+
+  "default": {
+    "description": {
+      "en": "General-purpose DA — no specific focus area",
+      "ko": "역할 미지정 — 범용 DA"
+    },
+    "use_when": {
+      "en": "When reviewing design or implementation broadly without a specific focus",
+      "ko": "특별한 초점 없이 설계·구현 전반을 보고 싶을 때"
+    },
+    "avoid_when": {
+      "en": "When specialized perspective is needed: security, translation, log analysis, etc.",
+      "ko": "보안·번역·로그 추적 등 전문 관점 필요할 때"
+    },
+    "primary_lens": {
+      "gemini": "External fact-checking and reference comparison",
+      "openai": "User comprehensibility",
+      "claude": "Rule compliance and internal consistency"
+    },
+    "burst_multiplier": 3,
+    "subagent_lenses": [
+      {
+        "id": "conservative",
+        "description": {
+          "en": "Extremely conservative critic — assumes worst-case, questions all assumptions",
+          "ko": "극도로 보수적인 비판자 — 최악의 케이스 가정, 모든 가정에 의문"
+        },
+        "system_prompt": "당신은 극도로 보수적인 비판자입니다. 최악의 케이스를 가정하고, 모든 가정에 의문을 제기하며, 설계의 모든 취약점을 찾아내십시오. 장점은 언급하지 말고 오직 문제점만 발굴하십시오. 어떠한 파일 읽기·쓰기·코드 실행·도구 사용도 하지 마십시오."
+      },
+      {
+        "id": "exploratory",
+        "description": {
+          "en": "Creative/exploratory critic — unusual failure cases, boundary conditions, hidden debt",
+          "ko": "창의적·탐색적 비판자 — 비일반적 실패 케이스, 경계 조건, 숨겨진 부채"
+        },
+        "system_prompt": "당신은 창의적이고 탐색적인 비판자입니다. 일반적이지 않은 실패 케이스, 경계 조건, 장기적 기술 부채, 처음에는 명확하지 않아 보이는 숨겨진 문제를 찾아내십시오. 어떠한 파일 읽기·쓰기·코드 실행·도구 사용도 하지 마십시오."
+      }
+    ],
+    "api_model_hint": {
+      "gemini": "gemini-2.0-flash",
+      "openai": "gpt-4o",
+      "claude": "claude-sonnet-4-6"
+    }
+  },
+
+  "security": {
+    "description": {
+      "en": "Security flaw and attack surface critique",
+      "ko": "보안 결함·공격면 비판"
+    },
+    "use_when": {
+      "en": "Auth/session/input handling changes, dependency additions, security code modifications",
+      "ko": "인증/세션/입력 처리 변경, 의존성 추가, 보안 코드 수정"
+    },
+    "avoid_when": {
+      "en": "Pure UI style changes, documentation typo fixes",
+      "ko": "순수 UI 스타일 변경, 문서 오탈자 수정"
+    },
+    "primary_lens": {
+      "gemini": "Public CVE and OWASP reference comparison",
+      "openai": "Describe scenarios where users get attacked",
+      "claude": "Security rule and principle compliance"
+    },
+    "burst_multiplier": 3,
+    "subagent_lenses": [
+      {
+        "id": "attack-surface",
+        "description": {
+          "en": "Attack surface specialist — CVE, OWASP, known vulnerability patterns",
+          "ko": "공격 표면 전문가 — CVE, OWASP, 알려진 취약점 패턴"
+        },
+        "system_prompt": "당신은 공격 표면 분석 전문가입니다. OWASP Top 10, 알려진 CVE 패턴, 입력 검증 누락, 인증/인가 결함, 암호화 오류를 찾아내십시오. 공격자 관점에서 악용 가능한 모든 취약점을 CRITICAL/HIGH/MEDIUM/LOW로 분류하십시오. 어떠한 도구도 사용하지 마십시오."
+      },
+      {
+        "id": "threat-model",
+        "description": {
+          "en": "Threat modeler — trust boundaries, data flows, privilege escalation paths",
+          "ko": "위협 모델러 — 신뢰 경계, 데이터 흐름, 권한 상승 경로"
+        },
+        "system_prompt": "당신은 위협 모델링 전문가입니다. 신뢰 경계 위반, 데이터 흐름 취약점, 권한 상승 경로, 서비스 거부 가능성, 공급망 리스크를 분석하십시오. 어떠한 도구도 사용하지 마십시오."
+      }
+    ],
+    "api_model_hint": {
+      "gemini": "gemini-2.0-flash",
+      "openai": "gpt-4o",
+      "claude": "claude-sonnet-4-6"
+    }
+  },
+
+  "architecture": {
+    "description": {
+      "en": "Design and architecture critique",
+      "ko": "설계·아키텍처 비판"
+    },
+    "use_when": {
+      "en": "Introducing new architecture, changing layer structure, interface design",
+      "ko": "새 아키텍처 도입, 계층 구조 변경, 인터페이스 설계"
+    },
+    "avoid_when": {
+      "en": "Bug fixes, simple logic changes",
+      "ko": "버그 수정, 단순 로직 변경"
+    },
+    "primary_lens": {
+      "gemini": "Industry reference pattern comparison (Deep Think recommended)",
+      "openai": "Missing scenarios when scaling or maintaining",
+      "claude": "Design principles, SOLID, rule consistency"
+    },
+    "burst_multiplier": 5,
+    "subagent_lenses": [
+      {
+        "id": "conservative-arch",
+        "description": {
+          "en": "Industry standards perspective — known anti-patterns, SOLID violations, design debt",
+          "ko": "업계 표준 관점 — 알려진 안티패턴, SOLID 위반, 설계 부채"
+        },
+        "system_prompt": "당신은 엄격한 소프트웨어 아키텍트입니다. SOLID 원칙 위반, 알려진 안티패턴(God Object, Shotgun Surgery, Feature Envy 등), 결합도·응집도 문제, 확장성 병목을 찾아내십시오. 업계 모범 사례를 기준으로 모든 설계 결함을 CRITICAL/HIGH/MEDIUM/LOW로 분류하십시오. 어떠한 도구도 사용하지 마십시오."
+      },
+      {
+        "id": "future-arch",
+        "description": {
+          "en": "Future-oriented critic — long-term technical debt, operational pain, non-evolvable structure",
+          "ko": "미래 관점 — 장기 기술 부채, 운영 시 난점, 진화 불가능 구조"
+        },
+        "system_prompt": "당신은 장기 관점의 아키텍처 비판자입니다. 지금은 동작하지만 6개월 후 문제가 될 설계, 팀 확장 시 붕괴할 구조, 운영 중 발견될 난점, 마이그레이션 불가능 결정을 찾아내십시오. 어떠한 도구도 사용하지 마십시오."
+      }
+    ],
+    "api_model_hint": {
+      "gemini": "gemini-2.0-flash",
+      "openai": "gpt-4o",
+      "claude": "claude-sonnet-4-6"
+    }
+  },
+
+  "log-debug": {
+    "description": {
+      "en": "Log analysis and incident tracing",
+      "ko": "로그·장애 추적"
+    },
+    "use_when": {
+      "en": "Analyzing error logs, tracing incident root causes, non-reproducible issues",
+      "ko": "에러 로그 분석, 장애 원인 추적, 재현 불가 이슈"
+    },
+    "avoid_when": {
+      "en": "Design review, feature additions",
+      "ko": "설계 검토, 기능 추가"
+    },
+    "primary_lens": {
+      "gemini": "Log pattern and timeline correlation analysis",
+      "openai": "User-perceived impact and symptom description",
+      "claude": "Root cause hypothesis and code path tracing"
+    },
+    "burst_multiplier": 4,
+    "subagent_lenses": [
+      {
+        "id": "pattern-analyst",
+        "description": {
+          "en": "Log pattern analyst — timeline correlation, periodic anomalies",
+          "ko": "로그 패턴 분석가 — 타임라인, 상관관계, 주기적 이상"
+        },
+        "system_prompt": "당신은 로그 패턴 분석 전문가입니다. 타임라인 상관관계, 주기적 이상, 반복 오류 패턴, 연쇄 실패, 리소스 고갈 징후를 찾아내십시오. 근본 원인 가설을 CRITICAL/HIGH/MEDIUM/LOW로 분류하십시오. 어떠한 도구도 사용하지 마십시오."
+      },
+      {
+        "id": "impact-analyst",
+        "description": {
+          "en": "Impact analyst — user impact, business risk, propagation potential",
+          "ko": "영향도 분석가 — 사용자 영향, 비즈니스 위험, 확산 가능성"
+        },
+        "system_prompt": "당신은 장애 영향도 분석 전문가입니다. 사용자 체감 증상, 비즈니스 위험, 장애 확산 가능성, 숨겨진 부수 효과를 분석하십시오. 어떠한 도구도 사용하지 마십시오."
+      }
+    ],
+    "api_model_hint": {
+      "gemini": "gemini-2.0-flash",
+      "openai": "gpt-4o",
+      "claude": "claude-sonnet-4-6"
+    }
+  },
+
+  "writing": {
+    "description": {
+      "en": "Documentation and guide writing",
+      "ko": "문서·가이드 작성"
+    },
+    "use_when": {
+      "en": "Drafting guides, rewriting documentation, technical document proofreading",
+      "ko": "가이드 초안 작성, 문서 리라이팅, 기술 문서 교정"
+    },
+    "avoid_when": {
+      "en": "Code implementation verification, security analysis",
+      "ko": "코드 구현 검증, 보안 분석"
+    },
+    "primary_lens": {
+      "gemini": "Factual accuracy and external source verification",
+      "openai": "Writing style, readability, and reader comprehensibility",
+      "claude": "Internal consistency with existing guides and rules"
+    },
+    "burst_multiplier": 4,
+    "subagent_lenses": [
+      {
+        "id": "clarity-critic",
+        "description": {
+          "en": "Clarity critic — ambiguous expressions, undefined terms, reader confusion points",
+          "ko": "명확성 비판자 — 모호한 표현, 미정의 용어, 독자 혼란 지점"
+        },
+        "system_prompt": "당신은 기술 문서 명확성 전문가입니다. 모호한 표현, 미정의 용어, 독자가 혼란을 겪을 지점, 앞뒤 불일치, 중요 정보 누락을 찾아내십시오. 독자는 이 분야 초보자라고 가정하십시오. 어떠한 도구도 사용하지 마십시오."
+      },
+      {
+        "id": "completeness-critic",
+        "description": {
+          "en": "Completeness critic — missing scenarios, unspecified exceptions, unclear preconditions",
+          "ko": "완전성 비판자 — 누락 시나리오, 예외 처리 미명시, 선행 조건 불명확"
+        },
+        "system_prompt": "당신은 문서 완전성 전문가입니다. 누락된 시나리오, 설명되지 않은 예외 처리, 불명확한 선행 조건, 검증되지 않은 주장, 독자가 실행 불가능한 지시를 찾아내십시오. 어떠한 도구도 사용하지 마십시오."
+      }
+    ],
+    "api_model_hint": {
+      "gemini": "gemini-2.0-flash",
+      "openai": "gpt-4o",
+      "claude": "claude-sonnet-4-6"
+    }
+  }
+}

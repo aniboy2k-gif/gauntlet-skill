@@ -1,0 +1,18 @@
+{
+  "_comment": "이 파일을 $HOME/.gauntlet/config.json 으로 복사 후 수정하거나 /gauntlet --setup 으로 대화형 설정",
+  "schema_version": "1.0",
+  "providers": [],
+  "_providers_comment": "사용할 API 제공자 목록. 비어 있으면 Stage 1 (simulated) 전용. 지원 값: \"gemini\", \"openai\", \"claude\"",
+  "key_storage": "env",
+  "_key_storage_comment": "API 키 저장 방식: env(환경변수) | keychain(macOS Keychain/Linux secret-tool) | file(~/.gauntlet/.keys)",
+  "aggregation_mode": "consensus",
+  "_aggregation_comment": "Stage 2 결과 집계: consensus(2개 이상 합의 시 Consensus Critical) | union(어느 AI든 CRITICAL이면 채택)",
+  "budget": {
+    "per_session_usd": 1.00,
+    "_comment": "세션당 API 비용 상한 (USD). 0이면 한도 없음. v1.1에서 실시간 집계 구현 예정"
+  },
+  "gc": {
+    "max_runs": 50,
+    "ttl_days": 30
+  }
+}

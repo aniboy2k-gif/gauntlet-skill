@@ -1,0 +1,10 @@
+{
+  "schema_version": "1.0",
+  "name": "gemini",
+  "display_name": "Google Gemini",
+  "key_env": "GAUNTLET_GEMINI_KEY",
+  "key_service": "gauntlet-gemini",
+  "default_model": "gemini-2.0-flash",
+  "lens_hint": "External fact-checking, industry reference comparison, multimodal analysis",
+  "timeout_sec": 60
+}

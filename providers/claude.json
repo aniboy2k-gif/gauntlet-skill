@@ -1,0 +1,11 @@
+{
+  "schema_version": "1.0",
+  "name": "claude",
+  "display_name": "Anthropic Claude API",
+  "key_env": "GAUNTLET_CLAUDE_KEY",
+  "key_service": "gauntlet-claude",
+  "default_model": "claude-sonnet-4-6",
+  "lens_hint": "Rule compliance, internal consistency, security principle alignment",
+  "timeout_sec": 60,
+  "_note": "GAUNTLET_CLAUDE_KEY only — do NOT use ANTHROPIC_API_KEY (prevents unintended Max plan charges)"
+}

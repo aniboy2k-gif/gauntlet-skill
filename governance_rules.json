@@ -1,0 +1,85 @@
+{
+  "__meta__": {
+    "schema_version": "1.1",
+    "description": "gauntlet DA 커버리지 판정 규칙 SSOT. 이 파일을 변경할 경우 SKILL.md Degraded Mode 표 및 ai-role-assignment.md §7도 함께 동기화해야 한다.",
+    "sync_targets": [
+      "SKILL.md (Step 0-D provider 검증, Degraded Mode 처리 섹션)",
+      "ref-pipeline.md (Step 9 status_update, Step 3/5/7 provider 디스패치)",
+      "ai-role-assignment.md §7 (INSUFFICIENT COVERAGE 임계)",
+      "gauntlet-roles.json __meta__"
+    ],
+    "changelog": "v1.1: hil_state_machine + provider_registry + stage_downgrade_rule 추가 (C1/C2 fix)"
+  },
+  "insufficient_coverage": {
+    "tier1_skip_threshold": 2,
+    "tier2_skip_threshold": 1,
+    "description": "이 임계값 이상 SKIPPED 시 INSUFFICIENT COVERAGE 처리. 자동 최종화 금지."
+  },
+  "grade_thresholds": {
+    "full_max_skips": 0,
+    "partial_high_min_skips": 1,
+    "insufficient_min_skips": 2
+  },
+  "exit_code_to_skip_mapping": {
+    "0": "completed",
+    "1": "validation_failed",
+    "2": "skipped",
+    "3": "skipped_contract_broken",
+    "description": "Stage 2 API exit code → SKIPPED 카운트 매핑. exit 2·3은 각각 SKIPPED +1."
+  },
+  "hil_acceptance": {
+    "accepted": ["확정해주세요", "이대로 Finalized 처리", "confirm", "finalize"],
+    "rejected": ["좋네요", "네", "looks good", "ok"],
+    "degraded_required_phrase": "Degraded 상태 수락",
+    "matching": {
+      "mode": "substring_ci",
+      "negation_prefixes": ["않", "말", "don't", "do not", "not ", "no "],
+      "negation_rule": "accepted 키워드가 있어도 negation_prefixes와 함께 사용되면 rejected로 처리",
+      "ambiguous_action": "재확인 프롬프트: '확정을 원하시나요? (예/아니요)'",
+      "description": "HIL 수락 키워드 매칭 규칙. 부정 문맥에서 accepted 키워드를 오탐하지 않도록 한다."
+    }
+  },
+  "verified_output_conditions": {
+    "required_stage": 2,
+    "max_skips_for_verified": 0,
+    "description": "Verified Output requires Stage 2 with 0 SKIPs. A single SKIP downgrades to Partial Verified Output. INSUFFICIENT COVERAGE blocks label entirely.",
+    "label_rules": {
+      "stage_1": "Advisory Output",
+      "stage_2_skip_0": "Verified Output",
+      "stage_2_skip_1": "Partial Verified Output",
+      "stage_2_skip_2_or_more": "INSUFFICIENT COVERAGE — label blocked"
+    }
+  },
+  "hil_state_machine": {
+    "allowed_transitions": {
+      "initialized":           ["executing", "insufficient_coverage"],
+      "executing":             ["result-generated", "insufficient_coverage"],
+      "result-generated":      ["finalized"],
+      "insufficient_coverage": [],
+      "finalized":             []
+    },
+    "finalized_requires_user_input": true,
+    "description": "SSOT for HIL state machine. 'finalized' can only be written in Step 10 after explicit user approval. Step 9 must only write 'result-generated'. Any code that sets status='finalized' outside of Step 10 is a violation of this rule."
+  },
+  "provider_registry": {
+    "known_providers": ["gemini", "openai", "claude"],
+    "unknown_provider_action": "hard_fail",
+    "exit_code": 2,
+    "description": "Only registered providers are valid in config.providers[]. Unknown providers cause hard fail (exit 2) at Step 0-D. To add a new provider: (1) add providers/<name>.json + providers/<name>.sh, (2) add '<name>' to known_providers here, (3) add to config.json providers[]."
+  },
+  "stage_downgrade_rule": {
+    "condition": "dispatched_provider_count == 0",
+    "action": "downgrade_to_stage_1",
+    "description": "If Stage 2 is configured but all providers are SKIPPED before any successful dispatch, Stage 2 is downgraded to Stage 1. Verified Output label cannot be issued with 0 actual dispatched providers."
+  },
+  "budget": {
+    "enforcement": "config_only",
+    "realtime": false,
+    "_note": "Budget cap is stored in ~/.gauntlet/config.json but NOT enforced in real-time in v1.0. Monitor your API provider dashboard directly.",
+    "roadmap": {
+      "realtime_enforcement_target": "v1.1",
+      "planned_mechanism": "pre-flight cost estimate via provider token-count API + per-session hard cap with early exit",
+      "workaround": "Monitor your API provider dashboard. Tier 1 Stage 2 makes up to 3 provider calls per session. Check usage before running in batch."
+    }
+  }
+}
