@@ -14,7 +14,7 @@
 
 **Solo AI flatters. gauntlet challenges.**
 
-![gauntlet demo](assets/demo.gif)
+![gauntlet demo](assets/demo-ko.gif)
 
 **AI가 당신의 설계에 동의하는 대신 공격하게 만들어라.**
 
