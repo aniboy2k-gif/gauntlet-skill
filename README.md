@@ -332,6 +332,12 @@ The two skills are not substitutes for each other. Including OpenAI in gauntlet 
 
 ---
 
+## Self-contained
+
+This repository is self-contained. Every documented feature works with the published skill package and the installation instructions below. See *Requirements* for supported environments.
+
+---
+
 ## Requirements
 
 ### Supported environments
