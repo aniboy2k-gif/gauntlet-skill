@@ -156,18 +156,39 @@ ls ~/.claude/skills/gauntlet/SKILL.md \
 /gauntlet --stage 2 이 설계서를 외부 AI로 교차 검증해 달라
 ```
 
-### 3. 결과 해석
+### 3. 빠른 독립 분석이 필요하다면 (선택 사항)
+
+```bash
+/gauntlet --parallel 이 아키텍처 설계를 검토해 달라
+```
+
+> **`--parallel` vs 기본 모드**: 기본 모드는 첫 번째 AI의 비판이 다음 AI의 공격 대상이 되는
+> 순차 비판 체인입니다. `--parallel`은 모든 provider가 동일한 초안을 독립적으로 검토합니다.
+> 속도가 빠르고 더 넓은 커버리지를 제공하지만, 순차 비판 체인의 깊이는 없습니다.
+>
+> `--parallel`은 Stage 2(외부 provider 설정 필요)에서만 동작합니다. Stage 1에서는 무시됩니다.
+
+**언제 어떤 모드를 쓸까요:**
+
+| 모드 | 명령어 | 적합한 상황 |
+|------|--------|------------|
+| 순차 비판 체인 (기본) | `/gauntlet` | 중요한 설계 결정, 심층 적대적 검토 |
+| 독립 병렬 분석 | `/gauntlet --parallel` | 빠른 초벌 검토, 사각지대 발견 |
+
+### 4. 결과 해석
 
 ```
 Advisory Output  → Stage 1 (Claude 내부 검토 — 같은 모델, 다른 각도)
 Verified Output  → Stage 2 (외부 AI 포함)
+[Independent Analysis] → --parallel 모드 (순차 체인 없음)
 
 CRITICAL / HIGH / MEDIUM / LOW 로 이슈 분류
 종합 판정: "승인 가능 여부 + 미해결 CRITICAL 수"
 
 합의 태그:
-  [강한 합의]       2개 이상 AI가 독립 근거로 같은 이슈 발굴
-  [단일 AI: Gemini] 1개 AI만 발굴 — 외부 검증 권장
+  [강한 합의]          2개 이상 AI가 독립 근거로 같은 이슈 발굴
+  [Unique finding: Gemini] 1개 AI만 발굴 — 외부 검증 권장
+  [Self-review: Claude]    Claude가 자신의 초안을 검토 — 동일 벤더 한계 있음
 
 등급별 권장 다음 단계:
   CRITICAL → 즉시 중단. 머지 또는 배포 전에 조사하고 해결하세요.
@@ -280,6 +301,32 @@ LOW     (2): 로깅 공백, 토큰 엔드포인트 속도 제한 없음
 | `architecture` | 새 아키텍처, 계층 구조, 인터페이스 설계 |
 | `log-debug` | 에러 로그, 장애 원인 추적 |
 | `writing` | 가이드, 기술 문서, README |
+
+---
+
+## 병렬 모드 (--parallel)
+
+`--parallel`은 기본 순차 비판 체인 파이프라인 대신, 설정된 모든 provider가 동일한
+초안을 독립적으로 검토하는 독립 분석 파이프라인으로 전환합니다.
+
+**동작 방식:**
+1. Claude가 TOPIC으로 r0-draft를 작성합니다 (기본과 동일)
+2. 모든 provider가 r0-draft를 독립적으로 받습니다 — 다른 provider의 출력을 보지 않음
+3. 결과를 결정론적으로 취합합니다 (규칙 기반 파서, LLM 병합 없음)
+4. 2개+ provider가 발견한 이슈: `[강한 합의]` 태그
+5. 1개 provider만 발견한 이슈: `[Unique finding: {provider}]` 태그
+
+**알려진 한계:**
+- 순차 비판 체인 없음: 각 provider는 초안만 검토하고 서로의 비판은 검토하지 않음
+- Claude provider 결과는 `[Self-review]` 태그 — Claude가 초안을 작성하고 검토하므로 자기비판
+- `--parallel`은 Stage 2 전용 — Stage 1에서는 무시됨
+
+**환경 변수:**
+
+| 변수 | 기본값 | 설명 |
+|------|--------|------|
+| `GAUNTLET_PROVIDER_TIMEOUT_SEC` | `120` | provider당 타임아웃(초) |
+| `GAUNTLET_MAX_PARALLEL` | `2` | 동시 실행 최대 수 (리소스 보호) |
 
 ---
 

@@ -149,18 +149,42 @@ ls ~/.claude/skills/gauntlet/SKILL.md \
 /gauntlet --stage 2 Cross-validate this design with external AI
 ```
 
-### 3. Reading the results
+### 3. For broad independent coverage (optional)
+
+```bash
+/gauntlet --parallel Review this architecture design
+```
+
+> **`--parallel` vs default**: The default mode chains critiques — each AI's findings
+> become the attack surface for the next. `--parallel` sends all providers the same
+> r0-draft independently, then aggregates results. Faster and broader, but loses the
+> adversarial chain depth. Use `--parallel` for a quick first-pass sweep; use the
+> default for high-stakes design decisions.
+>
+> `--parallel` requires Stage 2 (external providers configured). It is silently ignored
+> in Stage 1.
+
+**When to use which mode:**
+
+| Mode | Command | Best for |
+|------|---------|----------|
+| Chained (default) | `/gauntlet` | High-stakes decisions, adversarial refinement |
+| Independent | `/gauntlet --parallel` | Quick broad sweep, blind-spot detection |
+
+### 4. Reading the results
 
 ```
 Advisory Output  → Stage 1 (Claude internal review — same model, different angles)
 Verified Output  → Stage 2 (includes external AI from different vendors)
+[Independent Analysis] → --parallel mode (no chained critique)
 
 Issues classified as CRITICAL / HIGH / MEDIUM / LOW
 Final verdict: "Approval possible + number of unresolved CRITICALs"
 
 Consensus tags:
   [Strong consensus]       2+ AIs found the same issue with independent evidence
-  [Single AI: Gemini]      Only 1 AI found it — external validation recommended
+  [Unique finding: Gemini] Only 1 AI found it — external validation recommended
+  [Self-review: Claude]    Claude reviewed its own draft — same-vendor finding
 
 Recommended next steps by severity:
   CRITICAL → Stop. Investigate and resolve before merge or deployment.
@@ -274,6 +298,32 @@ A lens is a specialized critique perspective injected at each review step.
 | `architecture` | New architecture, layer structure, interface design |
 | `log-debug` | Error logs, incident root cause tracing |
 | `writing` | Guides, technical docs, READMEs |
+
+---
+
+## Parallel Mode (--parallel)
+
+`--parallel` switches from the default chained critique pipeline to an independent
+analysis pipeline where all configured providers review the same draft simultaneously.
+
+**How it works:**
+1. Claude writes an r0-draft from your topic (same as default)
+2. All providers receive r0-draft independently — no provider sees another's output
+3. Results are aggregated deterministically (rule-based parser, no LLM merging)
+4. Issues found by 2+ providers are tagged `[Strong consensus]`
+5. Issues found by only 1 provider are tagged `[Unique finding: {provider}]`
+
+**Known limitations:**
+- No adversarial chaining: each provider only challenges the original draft, not each other's critiques
+- Claude provider result is labeled `[Self-review]` — Claude authored the draft and reviews it, which is self-critique, not independent verification
+- `--parallel` is Stage 2 only — silently ignored in Stage 1
+
+**Environment variables:**
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `GAUNTLET_PROVIDER_TIMEOUT_SEC` | `120` | Seconds before a provider is marked TIMEOUT |
+| `GAUNTLET_MAX_PARALLEL` | `2` | Max providers running simultaneously (resource guard) |
 
 ---
 
